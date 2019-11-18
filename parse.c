@@ -226,6 +226,7 @@ void parse_line(FILE* file, char** line_str, char** label, int* op_inf, int* arg
             if(parse_word(arg_label, &mstr, &mstr_size) == 0)
                 print_syntax_error("Syntax error: unexpected space character", line);
             parsing_flag = 33;
+            *arg2_inf = -1;
        }
        else if(parsing_flag == 40){
             if(parse_word(arg_label, &mstr, &mstr_size) == 0)

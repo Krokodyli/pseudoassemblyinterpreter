@@ -61,6 +61,7 @@ void fill_operation_memory(int command, int arg1, int arg2, char* arg_label, int
        for(i = 0; i < pa_program->memory_instructions_count; i++){
            if(strcmp(arg_label, pa_program->memory_labels[i]) == 0){
                 pa_program->memory[addr_offset+2] = pa_program->memory_addresses[i];
+                if(command == LA_PCOMMAND) pa_program->memory[addr_offset+2] *= 4;
                 arg2_set = 1;
                 break;
            }
@@ -131,7 +132,10 @@ void run_instruction(pseudoassembly_program* pa_program){
 
     switch(command){
         case A_PCOMMAND:
-            pa_program->register_memory[arg1] = pa_program->register_memory[arg1] + pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
+            if(arg3 == -1)
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] + pa_program->memory[arg2];
+            else
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] + pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case AR_PCOMMAND:
@@ -139,13 +143,19 @@ void run_instruction(pseudoassembly_program* pa_program){
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case C_PCOMMAND:
-            pa_program->program_state =  pa_program->register_memory[arg1] - pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
+            if(arg3 == -1)
+                pa_program->program_state =  pa_program->register_memory[arg1] - pa_program->memory[arg2];
+            else
+                pa_program->program_state =  pa_program->register_memory[arg1] - pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
             break;
         case CR_PCOMMAND:
             pa_program->program_state = pa_program->register_memory[arg1] - pa_program->register_memory[arg2];
             break;
         case D_PCOMMAND:
-            pa_program->register_memory[arg1] = pa_program->register_memory[arg1] / pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
+            if(arg3 == -1)
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] / pa_program->memory[arg2];
+            else
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] / pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case DR_PCOMMAND:
@@ -178,19 +188,28 @@ void run_instruction(pseudoassembly_program* pa_program){
             else pa_program->program_state = 0;
             break;
         case L_PCOMMAND:
-            pa_program->register_memory[arg1] = pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
+            if(arg3 == -1)
+                pa_program->register_memory[arg1] = pa_program->memory[arg2];
+            else
+                pa_program->register_memory[arg1] = pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case LA_PCOMMAND:
-            pa_program->register_memory[arg1] = arg2;
-            pa_program->program_state = arg2;
+            if(arg3 == -1)
+                pa_program->register_memory[arg1] = arg2;
+            else
+                pa_program->register_memory[arg1] = arg2 + pa_program->register_memory[arg3];
+            pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case LR_PCOMMAND:
             pa_program->register_memory[arg1] = pa_program->register_memory[arg2];
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case M_PCOMMAND:
-            pa_program->register_memory[arg1] = pa_program->register_memory[arg1] * pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
+            if(arg3 == -1)
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] * pa_program->memory[arg2];
+            else
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] * pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case MR_PCOMMAND:
@@ -198,7 +217,10 @@ void run_instruction(pseudoassembly_program* pa_program){
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case S_PCOMMAND:
-            pa_program->register_memory[arg1] = pa_program->register_memory[arg1] - pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
+            if(arg3 == -1)
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] - pa_program->memory[arg2];
+            else
+                pa_program->register_memory[arg1] = pa_program->register_memory[arg1] - pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case SR_PCOMMAND:
@@ -206,8 +228,11 @@ void run_instruction(pseudoassembly_program* pa_program){
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case ST_PCOMMAND:
-            pa_program->memory[arg2+pa_program->register_memory[arg3]/4] = pa_program->register_memory[arg1];
-            pa_program->program_state = pa_program->memory[arg2+pa_program->register_memory[arg3]/4];
+            if(arg3 == -1)
+                pa_program->memory[arg2] = pa_program->register_memory[arg1];
+            else
+                pa_program->memory[arg2+pa_program->register_memory[arg3]/4] = pa_program->register_memory[arg1];
+            pa_program->program_state = pa_program->register_memory[arg1];
             break;
     }
     pa_program->current_operation_address += OP_SIZE;
