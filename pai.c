@@ -184,7 +184,6 @@ void run_instruction(pseudoassembly_program* pa_program){
             break;
         case L_PCOMMAND:
             pa_program->register_memory[arg1] = pa_program->memory[arg2+offset];
-            printf("%d\n", offset);
             pa_program->program_state = pa_program->register_memory[arg1];
             break;
         case LA_PCOMMAND:
