@@ -42,7 +42,7 @@ int mString_parse_int(int* out, mString mstr){
     while(head != NULL){
         if(head->c != ' ' && started_word_flag < 2){
             if(head->c == '-'){
-                sign = 0;
+                sign = -1;
                 started_word_flag = 2;
             }
             else{

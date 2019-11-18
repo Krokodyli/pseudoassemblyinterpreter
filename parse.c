@@ -138,6 +138,8 @@ void parse_register_memory_operation(int cc, mString* mstr, int* mstr_size, int*
         if(parse_integer(arg2_inf, mstr, mstr_size) == 0)
             print_syntax_error("Syntax error: expected integer", line);
 
+        assert_syntax_error(*arg2_inf >= 0 && *arg2_inf < REGISTER_SIZE, "Syntax error: expected register number", line);
+
         *parsing_flag = 33;
     }
     else{
